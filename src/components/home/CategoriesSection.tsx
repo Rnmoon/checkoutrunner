@@ -1,89 +1,108 @@
-
 import { Link } from "react-router-dom";
 import { 
-  ShoppingBag, 
-  Monitor, 
-  Smartphone, 
-  Sofa, 
-  Watch, 
-  Shirt, 
-  Utensils, 
-  Baby 
-} from "lucide-react";
+  MdDevices, 
+  MdPhoneIphone, 
+  MdChair, 
+  MdWatch, 
+  MdShoppingBag, 
+  MdKitchen, 
+  MdChildCare,
+  MdStorefront
+} from "react-icons/md";
 
 const categories = [
   {
     id: 1,
     name: "Electronics",
-    icon: <Monitor className="h-8 w-8 text-shopblue-500" />,
+    icon: <MdDevices className="h-8 w-8" />,
     path: "/categories/electronics",
+    color: "from-blue-500 to-blue-600"
   },
   {
     id: 2,
     name: "Smartphones",
-    icon: <Smartphone className="h-8 w-8 text-shopblue-500" />,
+    icon: <MdPhoneIphone className="h-8 w-8" />,
     path: "/categories/smartphones",
+    color: "from-purple-500 to-purple-600"
   },
   {
     id: 3,
     name: "Furniture",
-    icon: <Sofa className="h-8 w-8 text-shopblue-500" />,
+    icon: <MdChair className="h-8 w-8" />,
     path: "/categories/furniture",
+    color: "from-green-500 to-green-600"
   },
   {
     id: 4,
     name: "Watches",
-    icon: <Watch className="h-8 w-8 text-shopblue-500" />,
+    icon: <MdWatch className="h-8 w-8" />,
     path: "/categories/watches",
+    color: "from-red-500 to-red-600"
   },
   {
     id: 5,
     name: "Fashion",
-    icon: <Shirt className="h-8 w-8 text-shopblue-500" />,
+    icon: <MdShoppingBag className="h-8 w-8" />,
     path: "/categories/fashion",
+    color: "from-pink-500 to-pink-600"
   },
   {
     id: 6,
     name: "Kitchen",
-    icon: <Utensils className="h-8 w-8 text-shopblue-500" />,
+    icon: <MdKitchen className="h-8 w-8" />,
     path: "/categories/kitchen",
+    color: "from-orange-500 to-orange-600"
   },
   {
     id: 7,
     name: "Kids",
-    icon: <Baby className="h-8 w-8 text-shopblue-500" />,
+    icon: <MdChildCare className="h-8 w-8" />,
     path: "/categories/kids",
+    color: "from-yellow-500 to-yellow-600"
   },
   {
     id: 8,
     name: "All Products",
-    icon: <ShoppingBag className="h-8 w-8 text-shopblue-500" />,
+    icon: <MdStorefront className="h-8 w-8" />,
     path: "/products",
+    color: "from-indigo-500 to-indigo-600"
   },
 ];
 
 const CategoriesSection = () => {
   return (
-    <section className="py-12 px-4 max-w-7xl mx-auto">
-      <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8 text-center">
-        Shop by Category
-      </h2>
-      
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
-        {categories.map((category) => (
-          <Link 
-            key={category.id} 
-            to={category.path}
-            className="category-card group"
-          >
-            <div className="p-4 bg-shopblue-50 rounded-full mb-3 group-hover:bg-shopblue-100 transition-colors">
-              {category.icon}
-            </div>
-            <h3 className="text-gray-700 font-medium text-center">
-              {category.name}
-            </h3>
-          </Link>
-        ))}
+    <section className="py-20 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 mb-6">Shop by Category</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+            Discover our curated collection of products across various categories
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              to={category.path}
+              className="group relative overflow-hidden rounded-2xl bg-white border border-gray-100 hover:border-transparent hover:shadow-xl transition-all duration-300"
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${category.color}`}>
+              </div>
+              
+              <div className="relative p-8 flex flex-col items-center">
+                <div className="mb-4 p-4 rounded-full bg-gray-50 group-hover:bg-white/20 transition-colors duration-300">
+                  <div className="text-gray-600 group-hover:text-white transition-colors duration-300">
+                    {category.icon}
+                  </div>
+                </div>
+                <span className="text-base font-semibold text-gray-700 group-hover:text-white transition-colors duration-300">
+                  {category.name}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   );

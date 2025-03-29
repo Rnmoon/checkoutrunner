@@ -16,7 +16,7 @@ const HeroSection = () => {
     },
     {
       id: 2,
-      image: "https://images.unsplash.com/photo-1655721530791-65e669fcd4e4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      image: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?q=80&w=1921&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D0",
       title: "Tech Gadgets",
       description: "Latest tech at incredible prices",
       buttonText: "Explore",
@@ -25,7 +25,7 @@ const HeroSection = () => {
     },
     {
       id: 3,
-      image: "https://images.unsplash.com/photo-1623000935090-4ae45487a9b9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       title: "Home Decor",
       description: "Transform your space with our collection",
       buttonText: "Discover",
@@ -106,7 +106,7 @@ const HeroSection = () => {
               <p className="text-sm text-gray-600">Protected checkout</p>
             </div>
             <img 
-              src="https://img.icons8.com/fluency/48/secure.png" 
+              src="https://img.icons8.com/?size=100&id=9Kuhqic976qB&format=png&color=000000" 
               alt="Secure Payment" 
               className="w-12 h-12"
             />

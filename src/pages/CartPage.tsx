@@ -1,63 +1,33 @@
-
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Trash2, ShoppingBag, ChevronRight, ArrowRight } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-
-// Sample cart data
-const initialCartItems = [
-  {
-    id: 1,
-    name: "Wireless Noise Cancelling Headphones",
-    price: 199.99,
-    discountPrice: 149.99,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-    quantity: 1,
-    color: "Black",
-  },
-  {
-    id: 9,
-    name: "Ultra-thin Laptop",
-    price: 1499.99,
-    discountPrice: 1299.99,
-    image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80",
-    quantity: 1,
-    color: "Silver",
-  },
-];
+import { useCart } from "@/contexts/CartContext";
 
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const navigate = useNavigate();
+  const { items, removeFromCart, updateQuantity, totalPrice, setCheckoutComplete } = useCart();
   const [promoCode, setPromoCode] = useState("");
   const [promoDiscount, setPromoDiscount] = useState(0);
   const [isPromoApplied, setIsPromoApplied] = useState(false);
   
-  // Calculate subtotal
-  const subtotal = cartItems.reduce(
-    (total, item) => total + (item.discountPrice || item.price) * item.quantity,
-    0
-  );
-  
   // Fixed shipping rate
-  const shipping = subtotal > 100 ? 0 : 10;
+  const shipping = totalPrice > 100 ? 0 : 10;
   
-  // Total
-  const total = subtotal + shipping - promoDiscount;
+  // Total with shipping and promo
+  const total = totalPrice + shipping - promoDiscount;
   
-  const handleQuantityChange = (itemId: number, newQuantity: number) => {
+  const handleQuantityChange = (productId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    
-    setCartItems(cartItems.map(item => 
-      item.id === itemId ? { ...item, quantity: newQuantity } : item
-    ));
+    updateQuantity(productId, newQuantity);
   };
   
-  const handleRemoveItem = (itemId: number) => {
-    setCartItems(cartItems.filter(item => item.id !== itemId));
+  const handleRemoveItem = (productId: string) => {
+    removeFromCart(productId);
     toast.success("Item removed from cart");
   };
   
@@ -68,7 +38,7 @@ const CartPage = () => {
     }
     
     if (promoCode.toUpperCase() === "SAVE10") {
-      setPromoDiscount(subtotal * 0.1);
+      setPromoDiscount(totalPrice * 0.1);
       setIsPromoApplied(true);
       toast.success("Promo code applied successfully!");
     } else {
@@ -76,8 +46,24 @@ const CartPage = () => {
     }
   };
   
+  const handleCheckout = () => {
+    if (items.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+    // Store the current cart state before navigating
+    localStorage.setItem('checkout-cart', JSON.stringify({
+      items,
+      totalPrice,
+      shipping,
+      promoDiscount,
+      total
+    }));
+    navigate("/checkout");
+  };
+  
   // Empty Cart View
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
@@ -133,46 +119,45 @@ const CartPage = () => {
                   <div className="col-span-2 text-right">Total</div>
                 </div>
                 
-                {cartItems.map((item) => (
+                {items.map((item) => (
                   <div 
-                    key={item.id} 
+                    key={item.product.id} 
                     className="grid grid-cols-1 md:grid-cols-12 gap-4 py-4 border-b border-gray-100"
                   >
                     {/* Product Info */}
-                    <div className="col-span-1 md:col-span-6">
+                    <div className="col-span-6">
                       <div className="flex">
                         <div className="w-20 h-20 flex-shrink-0">
-                          <Link to={`/products/${item.id}`}>
+                          <Link to={`/products/${item.product.id}`}>
                             <img 
-                              src={item.image} 
-                              alt={item.name} 
+                              src={item.product.image} 
+                              alt={item.product.name} 
                               className="w-full h-full object-cover rounded-md"
                             />
                           </Link>
                         </div>
                         <div className="ml-4">
-                          <Link to={`/products/${item.id}`}>
+                          <Link to={`/products/${item.product.id}`}>
                             <h3 className="font-medium hover:text-shopblue-500">
-                              {item.name}
+                              {item.product.name}
                             </h3>
                           </Link>
-                          <p className="text-sm text-gray-500">Color: {item.color}</p>
                           
                           {/* Mobile Price */}
                           <div className="md:hidden flex items-center mt-2">
                             <span className="text-gray-600 mr-2">Price:</span>
-                            {item.discountPrice ? (
+                            {item.product.discount ? (
                               <div>
                                 <span className="font-semibold text-gray-800">
-                                  ${item.discountPrice.toFixed(2)}
+                                  ${(item.product.price * (1 - item.product.discount / 100)).toFixed(2)}
                                 </span>
                                 <span className="text-sm text-gray-500 line-through ml-2">
-                                  ${item.price.toFixed(2)}
+                                  ${item.product.price.toFixed(2)}
                                 </span>
                               </div>
                             ) : (
                               <span className="font-semibold text-gray-800">
-                                ${item.price.toFixed(2)}
+                                ${item.product.price.toFixed(2)}
                               </span>
                             )}
                           </div>
@@ -182,7 +167,7 @@ const CartPage = () => {
                             <span className="text-gray-600 mr-2">Quantity:</span>
                             <div className="flex border border-gray-300 rounded-md">
                               <button
-                                onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                                onClick={() => handleQuantityChange(item.product.id, item.quantity - 1)}
                                 className="px-2 py-1 bg-gray-100"
                               >
                                 -
@@ -191,11 +176,11 @@ const CartPage = () => {
                                 type="number"
                                 min="1"
                                 value={item.quantity}
-                                onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
+                                onChange={(e) => handleQuantityChange(item.product.id, parseInt(e.target.value) || 1)}
                                 className="w-10 text-center border-x border-gray-300"
                               />
                               <button
-                                onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                                onClick={() => handleQuantityChange(item.product.id, item.quantity + 1)}
                                 className="px-2 py-1 bg-gray-100"
                               >
                                 +
@@ -207,38 +192,29 @@ const CartPage = () => {
                           <div className="md:hidden flex items-center mt-2">
                             <span className="text-gray-600 mr-2">Total:</span>
                             <span className="font-semibold text-gray-800">
-                              ${((item.discountPrice || item.price) * item.quantity).toFixed(2)}
+                              ${(item.product.price * item.quantity * (1 - (item.product.discount || 0) / 100)).toFixed(2)}
                             </span>
                           </div>
                           
-                          {/* Mobile Remove Button */}
-                          <div className="md:hidden mt-2">
-                            <button
-                              onClick={() => handleRemoveItem(item.id)}
-                              className="text-red-500 text-sm flex items-center hover:text-red-600"
-                            >
-                              <Trash2 size={14} className="mr-1" />
-                              Remove
-                            </button>
-                          </div>
+                          {/* Remove Mobile Remove Button */}
                         </div>
                       </div>
                     </div>
                     
                     {/* Desktop Price */}
                     <div className="hidden md:flex md:col-span-2 items-center justify-center">
-                      {item.discountPrice ? (
+                      {item.product.discount ? (
                         <div className="text-center">
                           <div className="font-semibold text-gray-800">
-                            ${item.discountPrice.toFixed(2)}
+                            ${(item.product.price * (1 - item.product.discount / 100)).toFixed(2)}
                           </div>
                           <div className="text-sm text-gray-500 line-through">
-                            ${item.price.toFixed(2)}
+                            ${item.product.price.toFixed(2)}
                           </div>
                         </div>
                       ) : (
                         <span className="font-semibold text-gray-800">
-                          ${item.price.toFixed(2)}
+                          ${item.product.price.toFixed(2)}
                         </span>
                       )}
                     </div>
@@ -247,7 +223,7 @@ const CartPage = () => {
                     <div className="hidden md:flex md:col-span-2 items-center justify-center">
                       <div className="flex border border-gray-300 rounded-md">
                         <button
-                          onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                          onClick={() => handleQuantityChange(item.product.id, item.quantity - 1)}
                           className="px-2 py-1 bg-gray-100 hover:bg-gray-200"
                         >
                           -
@@ -256,11 +232,11 @@ const CartPage = () => {
                           type="number"
                           min="1"
                           value={item.quantity}
-                          onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
+                          onChange={(e) => handleQuantityChange(item.product.id, parseInt(e.target.value) || 1)}
                           className="w-10 text-center border-x border-gray-300"
                         />
                         <button
-                          onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                          onClick={() => handleQuantityChange(item.product.id, item.quantity + 1)}
                           className="px-2 py-1 bg-gray-100 hover:bg-gray-200"
                         >
                           +
@@ -271,10 +247,10 @@ const CartPage = () => {
                     {/* Desktop Total & Remove */}
                     <div className="hidden md:block md:col-span-2 text-right">
                       <div className="font-semibold text-gray-800 mb-1">
-                        ${((item.discountPrice || item.price) * item.quantity).toFixed(2)}
+                        ${(item.product.price * item.quantity * (1 - (item.product.discount || 0) / 100)).toFixed(2)}
                       </div>
                       <button
-                        onClick={() => handleRemoveItem(item.id)}
+                        onClick={() => handleRemoveItem(item.product.id)}
                         className="text-red-500 text-sm flex items-center ml-auto hover:text-red-600"
                       >
                         <Trash2 size={14} className="mr-1" />
@@ -284,7 +260,7 @@ const CartPage = () => {
                   </div>
                 ))}
                 
-                <div className="flex justify-between items-center mt-6">
+                <div className="mt-6">
                   <Link to="/products" className="text-shopblue-500 hover:text-shopblue-600 flex items-center">
                     <ChevronRight size={16} className="mr-1 rotate-180" />
                     Continue Shopping
@@ -303,7 +279,7 @@ const CartPage = () => {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>${totalPrice.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>Shipping</span>
@@ -326,43 +302,37 @@ const CartPage = () => {
                 </div>
                 
                 {/* Promo Code */}
-                <div className="mb-6">
-                  <div className="flex space-x-2">
-                    <Input
-                      type="text"
-                      placeholder="Promo code"
-                      value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value)}
-                      disabled={isPromoApplied}
-                      className="flex-grow"
-                    />
-                    <Button 
-                      onClick={handleApplyPromo}
-                      variant="outline"
-                      disabled={isPromoApplied}
-                    >
-                      Apply
-                    </Button>
-                  </div>
-                  {isPromoApplied && (
-                    <p className="text-green-600 text-sm mt-2">
-                      Promo code "SAVE10" applied!
-                    </p>
-                  )}
-                  {!isPromoApplied && (
-                    <p className="text-gray-500 text-sm mt-2">
+                {!isPromoApplied && (
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Input
+                        type="text"
+                        placeholder="Enter promo code"
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        variant="outline"
+                        onClick={handleApplyPromo}
+                        className="whitespace-nowrap"
+                      >
+                        Apply
+                      </Button>
+                    </div>
+                    <p className="text-gray-500 text-sm">
                       Try "SAVE10" for 10% off
                     </p>
-                  )}
-                </div>
+                  </div>
+                )}
                 
-                {/* Checkout Button */}
-                <Link to="/checkout">
-                  <Button className="w-full bg-shopblue-500 hover:bg-shopblue-600">
-                    Proceed to Checkout
-                    <ArrowRight size={16} className="ml-2" />
-                  </Button>
-                </Link>
+                <Button 
+                  className="w-full mt-6 bg-shopblue-500 hover:bg-shopblue-600"
+                  onClick={handleCheckout}
+                >
+                  Proceed to Checkout
+                  <ArrowRight size={16} className="ml-2" />
+                </Button>
                 
                 {/* Secure Checkout */}
                 <div className="mt-4 text-center">

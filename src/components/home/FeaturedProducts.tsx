@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Star, ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
 
 // Sample featured product data
 const featuredProducts = [
@@ -113,14 +113,18 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, onAddToCart, onAddToWishlist }: ProductCardProps) => {
+  const discountedPrice = product.discount
+    ? product.price * (1 - product.discount / 100)
+    : product.price;
+
   return (
-    <div className="product-card group">
-      <div className="relative overflow-hidden">
+    <div className="group relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+      <div className="aspect-square rounded-t-lg overflow-hidden">
         <Link to={`/products/${product.id}`}>
           <img
             src={product.image}
             alt={product.name}
-            className="product-image group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </Link>
         
@@ -131,6 +135,11 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist }: ProductCardProps
           )}
           {product.isSale && (
             <Badge className="bg-red-500 hover:bg-red-600">Sale</Badge>
+          )}
+          {product.discount && (
+            <Badge className="bg-red-500 hover:bg-red-600">
+              {product.discount}% OFF
+            </Badge>
           )}
         </div>
         
@@ -153,46 +162,44 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist }: ProductCardProps
         </Link>
         
         <Link to={`/products/${product.id}`}>
-          <h3 className="font-medium text-gray-800 mb-2 hover:text-shopblue-500 transition-colors line-clamp-2">
+          <h3 className="font-medium text-gray-900 group-hover:text-shopblue-500 transition-colors line-clamp-2">
             {product.name}
           </h3>
         </Link>
         
-        <div className="flex items-center mb-2">
-          <div className="rating-stars">
-            {[...Array(5)].map((_, i) => (
+        <div className="mt-2">
+          <div className="flex items-center">
+            {[...Array(5)].map((_, index) => (
               <Star
-                key={i}
-                size={16}
+                key={index}
+                size={14}
                 className={`${
-                  i < Math.floor(product.rating)
+                  index < Math.floor(product.rating)
                     ? "text-yellow-400 fill-yellow-400"
-                    : i < product.rating
-                    ? "text-yellow-400 fill-yellow-400 opacity-50"
                     : "text-gray-300"
                 }`}
               />
             ))}
+            <span className="text-sm text-gray-600 ml-2">
+              ({product.reviews} reviews)
+            </span>
           </div>
-          <span className="text-xs text-gray-500 ml-1">
-            ({product.reviews})
-          </span>
         </div>
         
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mt-4">
           <div className="flex items-center">
-            {product.discountPrice ? (
+            {product.discount ? (
               <>
-                <span className="font-semibold text-lg text-shopblue-600">
-                  ${product.discountPrice}
+                <span className="font-semibold text-lg text-red-600">
+                  ${discountedPrice.toFixed(2)}
                 </span>
                 <span className="text-sm text-gray-500 line-through ml-2">
-                  ${product.price}
+                  ${product.price.toFixed(2)}
                 </span>
               </>
             ) : (
-              <span className="font-semibold text-lg text-shopblue-600">
-                ${product.price}
+              <span className="font-semibold text-lg text-gray-900">
+                ${product.price.toFixed(2)}
               </span>
             )}
           </div>
@@ -213,12 +220,14 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist }: ProductCardProps
 
 const FeaturedProducts = () => {
   const [wishlist, setWishlist] = useState<number[]>([]);
-  const [cart, setCart] = useState<number[]>([]);
+  const { addToCart } = useCart();
 
-  const handleAddToCart = (productId: number) => {
-    setCart([...cart, productId]);
+  const handleAddToCart = (productId: string) => {
     const product = featuredProducts.find((p) => p.id === productId);
-    toast.success(`${product?.name} added to cart`);
+    if (product) {
+      addToCart(product);
+      toast.success(`${product.name} added to cart`);
+    }
   };
 
   const handleAddToWishlist = (productId: number) => {

@@ -23,336 +23,108 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { toast } from "sonner";
-
-// Sample product data
-const allProducts = [
-  {
-    id: 1,
-    name: "Wireless Noise Cancelling Headphones",
-    price: 199.99,
-    discountPrice: 149.99,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-    rating: 4.5,
-    reviews: 127,
-    category: "Electronics",
-    isNew: true,
-    isSale: true,
-    brand: "SoundMaster",
-    tags: ["headphones", "wireless", "audio"]
-  },
-  {
-    id: 2,
-    name: "Premium Smart Watch",
-    price: 299.99,
-    discountPrice: null,
-    image: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-    rating: 4.8,
-    reviews: 95,
-    category: "Electronics",
-    isNew: true,
-    isSale: false,
-    brand: "TechFit",
-    tags: ["smartwatch", "fitness", "wearable"]
-  },
-  {
-    id: 3,
-    name: "Designer Coffee Table",
-    price: 349.99,
-    discountPrice: 299.99,
-    image: "https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80",
-    rating: 4.2,
-    reviews: 48,
-    category: "Furniture",
-    isNew: false,
-    isSale: true,
-    brand: "HomeElegance",
-    tags: ["furniture", "living room", "wood"]
-  },
-  {
-    id: 4,
-    name: "Organic Cotton T-Shirt",
-    price: 29.99,
-    discountPrice: null,
-    image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80",
-    rating: 4.0,
-    reviews: 75,
-    category: "Fashion",
-    isNew: false,
-    isSale: false,
-    brand: "EcoWear",
-    tags: ["clothing", "sustainable", "casual"]
-  },
-  {
-    id: 5,
-    name: "Professional DSLR Camera",
-    price: 1299.99,
-    discountPrice: 1099.99,
-    image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80",
-    rating: 4.9,
-    reviews: 203,
-    category: "Electronics",
-    isNew: false,
-    isSale: true,
-    brand: "PhotoPro",
-    tags: ["camera", "photography", "professional"]
-  },
-  {
-    id: 6,
-    name: "Modern Desk Lamp",
-    price: 79.99,
-    discountPrice: null,
-    image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=688&q=80",
-    rating: 4.3,
-    reviews: 31,
-    category: "Home",
-    isNew: true,
-    isSale: false,
-    brand: "LightLife",
-    tags: ["lighting", "desk", "home office"]
-  },
-  {
-    id: 7,
-    name: "Leather Wallet",
-    price: 49.99,
-    discountPrice: 39.99,
-    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=735&q=80",
-    rating: 4.1,
-    reviews: 67,
-    category: "Accessories",
-    isNew: false,
-    isSale: true,
-    brand: "LeatherCraft",
-    tags: ["wallet", "accessories", "leather"]
-  },
-  {
-    id: 8,
-    name: "Stainless Steel Water Bottle",
-    price: 24.99,
-    discountPrice: null,
-    image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
-    rating: 4.4,
-    reviews: 89,
-    category: "Kitchen",
-    isNew: false,
-    isSale: false,
-    brand: "HydroLife",
-    tags: ["water bottle", "eco-friendly", "kitchen"]
-  },
-  {
-    id: 9,
-    name: "Ultra-thin Laptop",
-    price: 1499.99,
-    discountPrice: 1299.99,
-    image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80",
-    rating: 4.7,
-    reviews: 156,
-    category: "Electronics",
-    isNew: true,
-    isSale: true,
-    brand: "TechPro",
-    tags: ["laptop", "computer", "ultrabook"]
-  },
-  {
-    id: 10,
-    name: "Ergonomic Office Chair",
-    price: 249.99,
-    discountPrice: 199.99,
-    image: "https://images.unsplash.com/photo-1589384376604-e198d071b4f7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-    rating: 4.6,
-    reviews: 72,
-    category: "Furniture",
-    isNew: false,
-    isSale: true,
-    brand: "ComfortSeating",
-    tags: ["chair", "office", "ergonomic"]
-  },
-  {
-    id: 11,
-    name: "Smart Home Security Camera",
-    price: 129.99,
-    discountPrice: null,
-    image: "https://images.unsplash.com/photo-1558002038-1055e2e28fec?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-    rating: 4.4,
-    reviews: 103,
-    category: "Electronics",
-    isNew: true,
-    isSale: false,
-    brand: "SecureHome",
-    tags: ["security", "camera", "smart home"]
-  },
-  {
-    id: 12,
-    name: "Wireless Bluetooth Speaker",
-    price: 89.99,
-    discountPrice: 69.99,
-    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1631&q=80",
-    rating: 4.3,
-    reviews: 85,
-    category: "Electronics",
-    isNew: false,
-    isSale: true,
-    brand: "SoundMaster",
-    tags: ["speaker", "bluetooth", "wireless"]
-  },
-];
-
-// Extract unique categories, brands
-const categories = Array.from(new Set(allProducts.map(product => product.category)));
-const brands = Array.from(new Set(allProducts.map(product => product.brand)));
+import { Star } from "@/components/ui/star";
+import { products, Product } from "@/data/products";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 const ProductsPage = () => {
   const { category } = useParams();
   const [searchParams] = useSearchParams();
-  
-  const [products, setProducts] = useState(allProducts);
-  const [filteredProducts, setFilteredProducts] = useState(allProducts);
-  const [wishlist, setWishlist] = useState<number[]>([]);
-  const [cart, setCart] = useState<number[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1500]);
-  const [gridView, setGridView] = useState('grid'); // 'grid' or 'list'
-  const [sortOption, setSortOption] = useState('featured');
-  
-  // Filter states
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    category ? [category] : []
-  );
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortBy, setSortBy] = useState<string>("featured");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
-  const [showOnSale, setShowOnSale] = useState(false);
-  const [showInStock, setShowInStock] = useState(false);
-  
-  // Search query from URL
-  const searchQuery = searchParams.get('q') || '';
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  // Filter products based on filters
-  useEffect(() => {
-    let result = [...allProducts];
+  // Get unique categories and brands from products
+  const categories = Array.from(new Set(products.map(p => p.category)));
+  const brands = Array.from(new Set(products.map(p => p.brand)));
+
+  // Filter products based on all criteria
+  const filteredProducts = products.filter(product => {
+    // Category filter
+    if (category && product.category !== category) return false;
+    if (selectedCategories.length > 0 && !selectedCategories.includes(product.category)) return false;
     
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        product => 
-          product.name.toLowerCase().includes(query) || 
-          product.category.toLowerCase().includes(query) ||
-          product.brand.toLowerCase().includes(query) ||
-          (product.tags && product.tags.some(tag => tag.toLowerCase().includes(query)))
-      );
-    }
+    // Brand filter
+    if (selectedBrands.length > 0 && !selectedBrands.includes(product.brand)) return false;
     
-    // Filter by category
-    if (selectedCategories.length > 0) {
-      result = result.filter(product => 
-        selectedCategories.includes(product.category)
-      );
-    }
+    // Price range filter
+    if (product.price < priceRange[0] || product.price > priceRange[1]) return false;
     
-    // Filter by brand
-    if (selectedBrands.length > 0) {
-      result = result.filter(product => 
-        selectedBrands.includes(product.brand)
-      );
-    }
-    
-    // Filter by price range
-    result = result.filter(
-      product => {
-        const price = product.discountPrice || product.price;
-        return price >= priceRange[0] && price <= priceRange[1];
-      }
-    );
-    
-    // Filter by rating
+    // Rating filter
     if (selectedRatings.length > 0) {
-      result = result.filter(product => 
-        selectedRatings.includes(Math.floor(product.rating))
-      );
+      const hasMatchingRating = selectedRatings.some(rating => product.rating >= rating);
+      if (!hasMatchingRating) return false;
     }
     
-    // Filter by sale status
-    if (showOnSale) {
-      result = result.filter(product => product.isSale);
-    }
-    
-    // Apply sorting
-    switch (sortOption) {
-      case 'price-low':
-        result.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price));
-        break;
-      case 'price-high':
-        result.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price));
-        break;
-      case 'rating':
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'newest':
-        result.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
-        break;
-      default: // 'featured'
-        // Keep default order
-        break;
-    }
-    
-    setFilteredProducts(result);
-  }, [
-    searchQuery,
-    selectedCategories,
-    selectedBrands,
-    priceRange,
-    selectedRatings,
-    showOnSale,
-    showInStock,
-    sortOption,
-  ]);
+    return true;
+  });
 
-  const handleAddToCart = (productId: number) => {
-    setCart([...cart, productId]);
-    const product = products.find((p) => p.id === productId);
-    toast.success(`${product?.name} added to cart`);
-  };
-
-  const handleAddToWishlist = (productId: number) => {
-    if (wishlist.includes(productId)) {
-      setWishlist(wishlist.filter((id) => id !== productId));
-      toast.info("Removed from wishlist");
-    } else {
-      setWishlist([...wishlist, productId]);
-      toast.success("Added to wishlist");
+  // Sort products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case "price-asc":
+        return a.price - b.price;
+      case "price-desc":
+        return b.price - a.price;
+      case "rating":
+        return b.rating - a.rating;
+      case "reviews":
+        return b.reviews - a.reviews;
+      default:
+        return 0;
     }
-  };
+  });
 
   const toggleCategory = (category: string) => {
-    setSelectedCategories(
-      selectedCategories.includes(category)
-        ? selectedCategories.filter(c => c !== category)
-        : [...selectedCategories, category]
+    setSelectedCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
     );
   };
 
   const toggleBrand = (brand: string) => {
-    setSelectedBrands(
-      selectedBrands.includes(brand)
-        ? selectedBrands.filter(b => b !== brand)
-        : [...selectedBrands, brand]
+    setSelectedBrands(prev => 
+      prev.includes(brand) 
+        ? prev.filter(b => b !== brand)
+        : [...prev, brand]
     );
   };
 
   const toggleRating = (rating: number) => {
-    setSelectedRatings(
-      selectedRatings.includes(rating)
-        ? selectedRatings.filter(r => r !== rating)
-        : [...selectedRatings, rating]
+    setSelectedRatings(prev => 
+      prev.includes(rating) 
+        ? prev.filter(r => r !== rating)
+        : [...prev, rating]
     );
   };
 
-  const clearAllFilters = () => {
-    setSelectedCategories([]);
-    setSelectedBrands([]);
-    setSelectedRatings([]);
-    setPriceRange([0, 1500]);
-    setShowOnSale(false);
-    setShowInStock(false);
-    setSortOption('featured');
+  const handleAddToCart = (productId: string) => {
+    const product = products.find((p) => p.id === productId);
+    if (product) {
+      addToCart(product);
+      toast.success(`${product.name} added to cart`);
+    }
+  };
+
+  const handleWishlistToggle = (productId: string) => {
+    const product = products.find((p) => p.id === productId);
+    if (product) {
+      if (isInWishlist(productId)) {
+        removeFromWishlist(productId);
+        toast.info("Removed from wishlist");
+      } else {
+        addToWishlist(product);
+        toast.success("Added to wishlist");
+      }
+    }
   };
 
   // Filter sidebar component for mobile
@@ -385,8 +157,8 @@ const ProductsPage = () => {
         <h3 className="font-medium text-lg mb-3">Price Range</h3>
         <div className="px-2">
           <Slider
-            defaultValue={[0, 1500]}
-            max={1500}
+            defaultValue={[0, 2000]}
+            max={2000}
             step={10}
             value={priceRange}
             onValueChange={(value) => setPriceRange(value as [number, number])}
@@ -454,30 +226,16 @@ const ProductsPage = () => {
         </div>
       </div>
       
-      {/* Other Filters */}
-      <div>
-        <h3 className="font-medium text-lg mb-3">Other Filters</h3>
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="sale" 
-              checked={showOnSale}
-              onCheckedChange={() => setShowOnSale(!showOnSale)}
-            />
-            <label 
-              htmlFor="sale"
-              className="text-sm text-gray-700 cursor-pointer"
-            >
-              On Sale
-            </label>
-          </div>
-        </div>
-      </div>
-      
       {/* Clear Filters */}
       <Button 
         variant="outline" 
-        onClick={clearAllFilters}
+        onClick={() => {
+          setSelectedCategories([]);
+          setSelectedBrands([]);
+          setSelectedRatings([]);
+          setPriceRange([0, 2000]);
+          setSortBy("featured");
+        }}
         className="w-full"
       >
         Clear All Filters
@@ -493,7 +251,7 @@ const ProductsPage = () => {
           {/* Page Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              {category ? category : searchQuery ? `Search: ${searchQuery}` : "All Products"}
+              {category ? category : searchParams.get('q') ? `Search: ${searchParams.get('q')}` : "All Products"}
             </h1>
             <p className="text-gray-600">
               {filteredProducts.length} products found
@@ -533,18 +291,18 @@ const ProductsPage = () => {
                 <div className="flex items-center">
                   <ArrowUpDown size={18} className="mr-2 text-gray-500" />
                   <Select 
-                    value={sortOption} 
-                    onValueChange={setSortOption}
+                    value={sortBy} 
+                    onValueChange={setSortBy}
                   >
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Sort By" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="featured">Featured</SelectItem>
-                      <SelectItem value="price-low">Price: Low to High</SelectItem>
-                      <SelectItem value="price-high">Price: High to Low</SelectItem>
+                      <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                      <SelectItem value="price-desc">Price: High to Low</SelectItem>
                       <SelectItem value="rating">Top Rated</SelectItem>
-                      <SelectItem value="newest">Newest</SelectItem>
+                      <SelectItem value="reviews">Top Reviews</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -552,17 +310,17 @@ const ProductsPage = () => {
                 {/* View Toggle */}
                 <div className="flex items-center space-x-2">
                   <Button
-                    variant={gridView === 'grid' ? 'default' : 'outline'}
+                    variant={viewMode === 'grid' ? 'default' : 'outline'}
                     size="icon"
-                    onClick={() => setGridView('grid')}
+                    onClick={() => setViewMode('grid')}
                     className="h-9 w-9"
                   >
                     <Grid3X3 size={18} />
                   </Button>
                   <Button
-                    variant={gridView === 'list' ? 'default' : 'outline'}
+                    variant={viewMode === 'list' ? 'default' : 'outline'}
                     size="icon"
-                    onClick={() => setGridView('list')}
+                    onClick={() => setViewMode('list')}
                     className="h-9 w-9"
                   >
                     <LayoutGrid size={18} />
@@ -573,17 +331,14 @@ const ProductsPage = () => {
               {/* Product Grid Display */}
               {filteredProducts.length > 0 ? (
                 <div className={`grid ${
-                  gridView === 'grid' 
+                  viewMode === 'grid' 
                     ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' 
                     : 'grid-cols-1 gap-4'
                 }`}>
-                  {filteredProducts.map((product) => (
+                  {sortedProducts.map((product) => (
                     <ProductCard
                       key={product.id}
                       product={product}
-                      onAddToCart={handleAddToCart}
-                      onAddToWishlist={handleAddToWishlist}
-                      inWishlist={wishlist.includes(product.id)}
                     />
                   ))}
                 </div>
@@ -593,7 +348,13 @@ const ProductsPage = () => {
                     No products match your filters. Try adjusting your search criteria.
                   </p>
                   <Button 
-                    onClick={clearAllFilters}
+                    onClick={() => {
+                      setSelectedCategories([]);
+                      setSelectedBrands([]);
+                      setSelectedRatings([]);
+                      setPriceRange([0, 2000]);
+                      setSortBy("featured");
+                    }}
                     className="mt-4"
                   >
                     Clear All Filters

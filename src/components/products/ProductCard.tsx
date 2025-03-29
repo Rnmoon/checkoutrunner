@@ -1,130 +1,113 @@
-
 import { Link } from "react-router-dom";
-import { Star, ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-
-export interface Product {
-  id: number;
-  name: string;
-  price: number;
-  discountPrice: number | null;
-  image: string;
-  rating: number;
-  reviews: number;
-  category: string;
-  isNew?: boolean;
-  isSale?: boolean;
-}
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { BsStarFill, BsStar } from "react-icons/bs";
+import { FaShoppingCart, FaHeart } from "react-icons/fa";
+import { Product } from "@/data/products";
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart: (productId: number) => void;
-  onAddToWishlist: (productId: number) => void;
-  inWishlist?: boolean;
 }
 
-const ProductCard = ({ 
-  product, 
-  onAddToCart, 
-  onAddToWishlist,
-  inWishlist = false
-}: ProductCardProps) => {
+const ProductCard = ({ product }: ProductCardProps) => {
+  const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+
+  const handleAddToCart = () => {
+    addToCart(product);
+  };
+
+  const handleWishlistToggle = () => {
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
+    }
+  };
+
   return (
-    <div className="product-card group">
-      <div className="relative overflow-hidden">
-        <Link to={`/products/${product.id}`}>
+    <div className="group relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+      {/* Product Image */}
+      <Link to={`/products/${product.id}`} className="block">
+        <div className="relative aspect-square overflow-hidden rounded-t-lg">
           <img
             src={product.image}
             alt={product.name}
-            className="product-image group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
           />
-        </Link>
-        
-        {/* Product badges */}
-        <div className="absolute top-2 left-2 flex flex-col gap-2">
-          {product.isNew && (
-            <Badge className="bg-green-500 hover:bg-green-600">New</Badge>
-          )}
-          {product.isSale && (
-            <Badge className="bg-red-500 hover:bg-red-600">Sale</Badge>
+          {product.discount && (
+            <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-md text-sm font-medium">
+              {product.discount}% OFF
+            </div>
           )}
         </div>
-        
-        {/* Quick actions */}
-        <div className="absolute top-2 right-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className={`rounded-full bg-white ${
-              inWishlist 
-                ? "text-red-500 hover:bg-red-50" 
-                : "text-shopblue-500 hover:bg-shopblue-50"
-            }`}
-            onClick={() => onAddToWishlist(product.id)}
-          >
-            <Heart size={18} className={inWishlist ? "fill-red-500" : ""} />
-          </Button>
-        </div>
-      </div>
-      
+      </Link>
+
+      {/* Product Info */}
       <div className="p-4">
-        <Link to={`/categories/${product.category.toLowerCase()}`}>
-          <p className="text-xs text-gray-500 mb-1">{product.category}</p>
-        </Link>
-        
         <Link to={`/products/${product.id}`}>
-          <h3 className="font-medium text-gray-800 mb-2 hover:text-shopblue-500 transition-colors line-clamp-2">
+          <h3 className="text-lg font-semibold text-gray-800 hover:text-shopblue-500 transition-colors">
             {product.name}
           </h3>
         </Link>
-        
-        <div className="flex items-center mb-2">
-          <div className="rating-stars">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                size={16}
-                className={`${
-                  i < Math.floor(product.rating)
-                    ? "text-yellow-400 fill-yellow-400"
-                    : i < product.rating
-                    ? "text-yellow-400 fill-yellow-400 opacity-50"
-                    : "text-gray-300"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-xs text-gray-500 ml-1">
-            ({product.reviews})
+
+        {/* Price */}
+        <div className="mt-2 flex items-center gap-2">
+          <span className="text-xl font-bold text-gray-900">
+            ${(product.discount ? product.price * (1 - product.discount / 100) : product.price).toFixed(2)}
+          </span>
+          {product.discount && (
+            <span className="text-sm text-gray-500 line-through">
+              ${product.price.toFixed(2)}
+            </span>
+          )}
+        </div>
+
+        {/* Rating */}
+        <div className="mt-2 flex items-center gap-1">
+          {[...Array(5)].map((_, index) => (
+            <span
+              key={index}
+              className={`text-yellow-400 ${
+                index < Math.floor(product.rating)
+                  ? "animate-bounce"
+                  : "text-gray-300"
+              }`}
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              {index < Math.floor(product.rating) ? (
+                <BsStarFill className="h-4 w-4" />
+              ) : (
+                <BsStar className="h-4 w-4" />
+              )}
+            </span>
+          ))}
+          <span className="text-sm text-gray-500 ml-1">
+            ({product.reviews} reviews)
           </span>
         </div>
-        
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            {product.discountPrice ? (
-              <>
-                <span className="font-semibold text-lg text-shopblue-600">
-                  ${product.discountPrice}
-                </span>
-                <span className="text-sm text-gray-500 line-through ml-2">
-                  ${product.price}
-                </span>
-              </>
-            ) : (
-              <span className="font-semibold text-lg text-shopblue-600">
-                ${product.price}
-              </span>
-            )}
-          </div>
-          
+
+        {/* Actions */}
+        <div className="mt-4 flex items-center justify-between">
           <Button
-            variant="outline"
-            size="icon"
-            className="rounded-full text-shopblue-500 hover:bg-shopblue-50"
-            onClick={() => onAddToCart(product.id)}
+            onClick={handleAddToCart}
+            className="flex-1 bg-shopblue-500 hover:bg-shopblue-600 text-white transition-colors group-hover:animate-bounce"
           >
-            <ShoppingCart size={18} />
+            <FaShoppingCart className="mr-2" />
+            Add to Cart
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleWishlistToggle}
+            className={`ml-2 ${
+              isInWishlist(product.id)
+                ? "text-red-500 animate-pulse"
+                : "text-gray-400 hover:text-red-500"
+            }`}
+          >
+            <FaHeart className="h-5 w-5" />
           </Button>
         </div>
       </div>
